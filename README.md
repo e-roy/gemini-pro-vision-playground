@@ -1,6 +1,10 @@
 # Gemini Pro Vision Playground
 
-https://github.com/e-roy/gemini-vison-playground/assets/70700747/5776752b-3146-4ba1-84fc-7d92210fa3ed
+
+
+https://github.com/e-roy/gemini-pro-vision-playground/assets/70700747/39c3c8df-3591-4683-b9ea-3ae7cc3a51f1
+
+
 
 This is project is a simple playground for using Gemini Pro Vision
 
