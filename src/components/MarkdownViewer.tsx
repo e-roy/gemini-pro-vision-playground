@@ -57,7 +57,6 @@ const LiComponent: React.FC<React.LiHTMLAttributes<HTMLLIElement>> = ({
   );
 };
 
-// Memoize components to prevent re-rendering if props have not changed
 const MemoizedAnchor = React.memo(Anchor);
 const MemoizedUlComponent = React.memo(UlComponent);
 const MemoizedOlComponent = React.memo(OlComponent);
@@ -68,7 +67,6 @@ interface IMarkdownViewerProps {
 }
 
 export const MarkdownViewer: React.FC<IMarkdownViewerProps> = ({ text }) => {
-  // Use useMemo to avoid re-creating the components object on every render
   const components = useMemo(
     () => ({
       a: MemoizedAnchor,

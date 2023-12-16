@@ -1,10 +1,42 @@
-// api/gemini/route.ts
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// api/gemini-vision/route.ts
+import {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+} from "@google/generative-ai";
 
-export const runtime = "nodejs";
+const safetySettings = [
+  {
+    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+  {
+    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+  },
+];
+
+export const runtime = "edge";
 
 export async function POST(req: Request) {
-  const { message, images, image_types } = await req.json();
+  const {
+    message,
+    images,
+    image_types,
+    temperature,
+    max_length,
+    top_p,
+    top_k,
+  } = await req.json();
+  // console.log(temperature, max_length, top_p, top_k);
 
   const userMessage = message;
 
@@ -28,13 +60,15 @@ export async function POST(req: Request) {
 
   const model = genAI.getGenerativeModel({
     model: "gemini-pro-vision",
+    safetySettings,
+
     generationConfig: {
       //   candidateCount: 0,
       //   stopSequences: [],
-      //   maxOutputTokens: 0,
-      temperature: 0.4,
-      topP: 1,
-      topK: 32,
+      maxOutputTokens: max_length,
+      temperature: temperature,
+      topP: top_p,
+      topK: top_k,
     },
   });
 

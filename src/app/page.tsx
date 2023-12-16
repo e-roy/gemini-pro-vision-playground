@@ -1,137 +1,42 @@
 "use client";
 // app/page.tsx
-import ImageUploadComponent from "@/components/ImageUploadComponent";
-import { MarkdownViewer } from "@/components/MarkdownViewer";
-import { Card } from "@/components/ui/card";
-import { useState, useCallback } from "react";
-
-type ImageData = {
-  base64: string;
-  mimeType: string;
-};
+import { useState } from "react";
+import { VisionContainer } from "@/components/VisionContainer";
+import { ChatContainer } from "@/components/ChatContainer";
+import { Eye, MessageCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const [firstImageData, setFirstImageData] = useState<ImageData | null>(null);
-  const [secondImageData, setSecondImageData] = useState<ImageData | null>(
-    null
+  const [activeComponent, setActiveComponent] = useState<"vision" | "chat">(
+    "vision"
   );
-  const [result, setResult] = useState<string>("");
-  const [prompt, setPrompt] = useState<string>("");
-  const [userQuestion, setUserQuestion] = useState<string>("");
-
-  const handleFirstImageUpload = useCallback(
-    (base64: string, mimeType: string) => {
-      setFirstImageData({ base64, mimeType });
-    },
-    []
-  );
-
-  const handleSecondImageUpload = useCallback(
-    (base64: string, mimeType: string) => {
-      setSecondImageData({ base64, mimeType });
-    },
-    []
-  );
-
-  const isFormSubmittable = () => {
-    return (
-      prompt.trim() !== "" &&
-      (firstImageData !== null || secondImageData !== null)
-    );
-  };
-
-  const handleSubmitForm = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!isFormSubmittable()) return;
-    setUserQuestion(prompt);
-    setResult("");
-    setPrompt("");
-
-    // Filter out any invalid image data (where base64 or mimeType is an empty string)
-    const imagesData = [firstImageData, secondImageData].filter(
-      (data): data is ImageData => {
-        return data !== null && data.base64 !== "" && data.mimeType !== "";
-      }
-    );
-
-    // If there are no valid images and the prompt is empty, do not proceed
-    if (imagesData.length === 0) return;
-
-    const imagesBase64 = imagesData.map((data) =>
-      data.base64.replace(/^data:image\/\w+;base64,/, "")
-    );
-    const imageTypes = imagesData.map((data) => data.mimeType);
-
-    const body = JSON.stringify({
-      message: prompt,
-      images: imagesBase64,
-      image_types: imageTypes,
-    });
-
-    try {
-      const response = await fetch(`/api/gemini`, {
-        method: "POST",
-        body,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      if (reader) {
-        let accumulator = "";
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const text = new TextDecoder().decode(value);
-          accumulator += text;
-          setResult(accumulator);
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        setResult(`Error: ${error.message}`);
-      }
-    }
-  };
 
   return (
-    <main className="grid grid-cols-2 max-h-screen max-w-6xl m-auto gap-4">
-      <div className="space-y-4 p-4">
-        <ImageUploadComponent onImageUpload={handleFirstImageUpload} />
-        <ImageUploadComponent onImageUpload={handleSecondImageUpload} />
-      </div>
-      <div className="flex flex-col h-screen max-h-screen pt-4 pb-8">
-        <Card className="flex-1 overflow-y-scroll">
-          <div className={`bg-slate-200 p-4`}>{userQuestion}</div>
-          <div className={`p-4`}>
-            <MarkdownViewer text={result} />
-          </div>
-        </Card>
-
-        <form
-          onSubmit={handleSubmitForm}
-          style={{ display: "flex", paddingTop: "10px" }}
+    <main className="grid grid-cols-12 max-h-screen h-screen max-w-6xl m-auto gap-4 p-2 md:p-4">
+      <nav className="col-span-1 flex flex-col space-y-4 pt-2">
+        <button
+          type="button"
+          className={cn(
+            `border-2 hover:border-slate-400 hover:shadow-lg shadow-slate-300 rounded-full mx-auto p-2 text-slate-400 hover:text-slate-700 transition ease-in-out delay-50 hover:-translate-y-0.5 hover:scale-110 duration-150`,
+            activeComponent === "vision" && "border-slate-400 text-slate-700"
+          )}
+          onClick={() => setActiveComponent("vision")}
         >
-          <input
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="flex-1 p-2 rounded-lg border border-slate-300 shadow-md shadow-slate-300"
-            placeholder="Ask a question about the images"
-          />
-          <button
-            type="submit"
-            className="ml-2 p-2 rounded-lg border bg-blue-500 hover:bg-blue-600 text-white"
-          >
-            Send
-          </button>
-        </form>
+          <Eye className="h-10 w-10" />
+        </button>
+        <button
+          type="button"
+          className={cn(
+            `border-2 hover:border-slate-400 hover:shadow-lg shadow-slate-300 rounded-full mx-auto p-2 text-slate-400 hover:text-slate-700 transition ease-in-out delay-50 hover:-translate-y-0.5 hover:scale-110 duration-150`,
+            activeComponent === "chat" && "border-slate-400 text-slate-700"
+          )}
+          onClick={() => setActiveComponent("chat")}
+        >
+          <MessageCircle className="h-10 w-10" />
+        </button>
+      </nav>
+      <div className="col-span-11 h-[95vh]">
+        {activeComponent === "vision" ? <VisionContainer /> : <ChatContainer />}
       </div>
     </main>
   );
