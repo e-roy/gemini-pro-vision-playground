@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { SliderProps } from "@radix-ui/react-slider";
 
 import {
   HoverCard,
@@ -42,7 +41,7 @@ export function TopPSelector({ value, onValueChange }: TopPSelectorProps) {
         <HoverCardContent
           align="start"
           className="w-[260px] text-sm"
-          side="left"
+          side="right"
         >
           Top-p changes how the model selects tokens for output. Tokens are
           selected from most probable to least until the sum of their

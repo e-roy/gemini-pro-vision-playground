@@ -10,14 +10,14 @@ import { MaxLengthSelector } from "./control/MaxLengthSelector";
 import { TopPSelector } from "./control/TopPSelector";
 import { TopKSelector } from "./control/TopKSelector";
 
-type ImageData = {
-  base64: string;
+type MediaData = {
+  data: string;
   mimeType: string;
 };
 
 export const VisionContainer = () => {
-  const [firstImageData, setFirstImageData] = useState<ImageData | null>(null);
-  const [secondImageData, setSecondImageData] = useState<ImageData | null>(
+  const [firstMediaData, setFirstMediaData] = useState<MediaData | null>(null);
+  const [secondMediaData, setSecondMediaData] = useState<MediaData | null>(
     null
   );
   const [result, setResult] = useState<string>("");
@@ -46,16 +46,16 @@ export const VisionContainer = () => {
     setTopK(newTopK[0]);
   };
 
-  const handleFirstImageUpload = useCallback(
-    (base64: string, mimeType: string) => {
-      setFirstImageData({ base64, mimeType });
+  const handleFirstMediaUpload = useCallback(
+    (data: string, mimeType: string) => {
+      setFirstMediaData({ data, mimeType });
     },
     []
   );
 
-  const handleSecondImageUpload = useCallback(
-    (base64: string, mimeType: string) => {
-      setSecondImageData({ base64, mimeType });
+  const handleSecondMediaUpload = useCallback(
+    (data: string, mimeType: string) => {
+      setSecondMediaData({ data, mimeType });
     },
     []
   );
@@ -63,7 +63,7 @@ export const VisionContainer = () => {
   const isFormSubmittable = () => {
     return (
       prompt.trim() !== "" &&
-      (firstImageData !== null || secondImageData !== null)
+      (firstMediaData !== null || secondMediaData !== null)
     );
   };
 
@@ -77,24 +77,25 @@ export const VisionContainer = () => {
     setPrompt("");
 
     // Filter out any invalid image data (where base64 or mimeType is an empty string)
-    const imagesData = [firstImageData, secondImageData].filter(
-      (data): data is ImageData => {
-        return data !== null && data.base64 !== "" && data.mimeType !== "";
+    const mediaData = [firstMediaData, secondMediaData].filter(
+      (data): data is MediaData => {
+        return data !== null && data.data !== "" && data.mimeType !== "";
       }
     );
 
     // If there are no valid images and the prompt is empty, do not proceed
-    if (imagesData.length === 0) return;
+    if (mediaData.length === 0) return;
 
-    const imagesBase64 = imagesData.map((data) =>
-      data.base64.replace(/^data:image\/\w+;base64,/, "")
+    const mediaBase64 = mediaData.map((data) =>
+      data.data.replace(/^data:(image|video)\/\w+;base64,/, "")
     );
-    const imageTypes = imagesData.map((data) => data.mimeType);
+    const mediaTypes = mediaData.map((data) => data.mimeType);
 
     const body = JSON.stringify({
       message: prompt,
-      images: imagesBase64,
-      image_types: imageTypes,
+
+      media: mediaBase64,
+      media_types: mediaTypes,
       temperature,
       max_length: maxLength,
       top_p: topP,
@@ -123,8 +124,8 @@ export const VisionContainer = () => {
           const text = new TextDecoder().decode(value);
           accumulator += text;
           setResult(accumulator);
-          setLoading(false);
         }
+        setLoading(false);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -151,8 +152,8 @@ export const VisionContainer = () => {
           <TopKSelector value={topK} onValueChange={handleTopKChange} />
         </div>
 
-        <ImageUploadComponent onImageUpload={handleFirstImageUpload} />
-        <ImageUploadComponent onImageUpload={handleSecondImageUpload} />
+        <ImageUploadComponent onFileUpload={handleFirstMediaUpload} />
+        <ImageUploadComponent onFileUpload={handleSecondMediaUpload} />
       </div>
       <div className="flex flex-col h-[95vh] col-span-8">
         <Card className="flex flex-col flex-1 overflow-hidden">
@@ -160,6 +161,13 @@ export const VisionContainer = () => {
             <div className="bg-slate-200 p-4">{userQuestion}</div>
           )}
           <div className="flex-1 overflow-y-auto p-4">
+            {!firstMediaData?.data && !secondMediaData?.data && (
+              <div className="flex flex-col items-center justify-center h-full">
+                <div className="text-2xl text-slate-700 font-medium">
+                  Add an image to get started
+                </div>
+              </div>
+            )}
             <MarkdownViewer text={result} />
           </div>
           <form

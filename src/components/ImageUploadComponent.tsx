@@ -8,17 +8,21 @@ import { Import, Upload, XCircle } from "lucide-react";
 const MAX_IMAGE_SIZE = 1024 * 1024; // 1 MB
 
 interface ImageUploadComponentProps {
-  onImageUpload: (base64: string, mimeType: string) => void;
+  onFileUpload: (data: string, mimeType: string) => void;
 }
 
 const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
-  function ImageUploadComponent({ onImageUpload }) {
-    const [image, setImage] = useState<string | null>(null);
+  function ImageUploadComponent({ onFileUpload }) {
+    const [media, setMedia] = useState<{
+      type: "image" | "video";
+      src: string;
+    } | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const removeImage = useCallback(() => {
-      setImage(null);
-      onImageUpload("", "");
-    }, [onImageUpload]);
+    const removeMedia = useCallback(() => {
+      setMedia(null);
+      onFileUpload("", "");
+    }, [onFileUpload]);
 
     const resizeImage = useCallback(
       (file: File): void => {
@@ -33,32 +37,64 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
           ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
 
           const resizedDataURL = canvas.toDataURL(file.type);
-          setImage(resizedDataURL);
-          onImageUpload(resizedDataURL, file.type);
+          setMedia({ type: "image", src: resizedDataURL });
+          onFileUpload(resizedDataURL, file.type);
 
           URL.revokeObjectURL(img.src);
           img.onload = null;
         };
       },
-      [onImageUpload]
+      [onFileUpload]
     );
+
+    const readFileAsBase64 = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result as string);
+        };
+        reader.onerror = (error) => {
+          reject(error);
+        };
+        reader.readAsDataURL(file);
+      });
+    };
 
     const onDrop = useCallback(
       (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
-        if (file.size > MAX_IMAGE_SIZE) {
-          resizeImage(file);
-        } else {
-          const reader = new FileReader();
-          reader.onload = (event: ProgressEvent<FileReader>) => {
-            const result = event.target?.result as string;
-            setImage(result);
-            onImageUpload(result, file.type);
-          };
-          reader.readAsDataURL(file);
+        if (!file) {
+          setError("File type not supported.  Please try .jpg or .png file");
+          return;
+        }
+        setError(null);
+
+        if (file.type.startsWith("image/")) {
+          if (file.size > MAX_IMAGE_SIZE) {
+            resizeImage(file);
+          } else {
+            const reader = new FileReader();
+            reader.onload = (event: ProgressEvent<FileReader>) => {
+              const result = event.target?.result as string;
+              setMedia({ type: "image", src: result });
+              onFileUpload(result, file.type);
+            };
+            reader.readAsDataURL(file);
+          }
+        } else if (file.type.startsWith("video/")) {
+          // Handle video files
+          readFileAsBase64(file).then(
+            (base64String) => {
+              setMedia({ type: "video", src: base64String });
+              onFileUpload(base64String, file.type);
+            },
+            (error) => {
+              console.error("Error reading video file", error);
+            }
+          );
         }
       },
-      [onImageUpload, resizeImage]
+      [onFileUpload, resizeImage]
     );
 
     const { getRootProps, getInputProps, open, isDragActive } = useDropzone({
@@ -68,6 +104,9 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
       accept: {
         "image/jpeg": [],
         "image/png": [],
+        // "video/mp4": [],
+        // "video/webm": [],
+        // "video/ogg": [],
       },
     });
 
@@ -84,14 +123,24 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
             <p className="font-semibold text-2xl">Drop Image Here</p>
           </div>
         )}
-        {image ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={image}
-            alt="Uploaded"
-            className="max-w-full max-h-full object-contain"
-            style={{ maxHeight: "calc(48vh - 2rem)" }}
-          />
+
+        {media ? (
+          media.type === "image" ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={media.src}
+              alt="Uploaded"
+              className="max-w-full max-h-full object-contain"
+              style={{ maxHeight: "calc(48vh - 2rem)" }}
+            />
+          ) : (
+            <video
+              src={media.src}
+              controls
+              className="max-w-full max-h-full object-contain"
+              style={{ maxHeight: "calc(48vh - 2rem)" }}
+            />
+          )
         ) : (
           <button
             type="button"
@@ -100,12 +149,13 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
           >
             <Upload />
             <p className="font-semibold text-2xl">Drop Image Here</p>
+            <p className={`text-sm text-red-500`}>{error}</p>
           </button>
         )}
-        {image && (
+        {media && (
           <button
             type="button"
-            onClick={removeImage}
+            onClick={removeMedia}
             className="absolute top-6 right-6 text-slate-500 hover:text-slate-700"
           >
             <XCircle className="w-6 h-6" />

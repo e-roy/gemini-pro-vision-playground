@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { SliderProps } from "@radix-ui/react-slider";
 
 import {
   HoverCard,
@@ -12,20 +11,16 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
 interface MaxLengthSelectorProps {
-  // defaultValue: SliderProps["defaultValue"];
   maxTokens: number;
   value: number;
   onValueChange: (newValue: number[]) => void;
 }
 
 export function MaxLengthSelector({
-  // defaultValue,
   maxTokens,
   value,
   onValueChange,
 }: MaxLengthSelectorProps) {
-  // const [value, setValue] = React.useState(defaultValue);
-
   return (
     <div className="grid gap-2 pt-2">
       <HoverCard openDelay={200}>
@@ -51,7 +46,7 @@ export function MaxLengthSelector({
         <HoverCardContent
           align="start"
           className="w-[260px] text-sm"
-          side="left"
+          side="right"
         >
           Token limit determines the maximum amount of text output from one
           prompt. A token is approximately four characters. The default value is

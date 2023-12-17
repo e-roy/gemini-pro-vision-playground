@@ -41,7 +41,7 @@ export function TopKSelector({ value, onValueChange }: TopKSelectorProps) {
         <HoverCardContent
           align="start"
           className="w-[260px] text-sm"
-          side="left"
+          side="right"
         >
           Top-k changes how the model selects tokens for output. A top-k of 1
           means the selected token is the most probable among all tokens in the

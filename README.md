@@ -1,13 +1,8 @@
 # Gemini Pro Vision Playground
 
-
-
 https://github.com/e-roy/gemini-pro-vision-playground/assets/70700747/a39416bd-eb4f-45ac-bc33-a777332e4835
 
-
-
-
-This is project is a simple playground for using Gemini Pro Vision
+This is project is a simple playground for using the Gemini Pro Vision and Gemini Pro AI models.
 
 ## Getting Started
 
@@ -19,18 +14,21 @@ Create a `.env.local` file and add your api key
 GOOGLE_API_KEY={your-google-ai-api-key}
 ```
 
-First, run the development server:
+First, install packages:
+
+```bash
+yarn
+```
+
+Then, run the development server:
 
 ```bash
 yarn dev
-
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+Add at least one image to use Vision.
 
 ## Learn More
 

@@ -1,6 +1,6 @@
 "use client";
 // components/ChatContainer.tsx
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, FormEvent } from "react";
 import { Message, useChat } from "ai/react";
 import { Loader, Send } from "lucide-react";
 import { Card } from "./ui/card";
@@ -42,6 +42,12 @@ export const ChatContainer = () => {
       top_p: topP,
       top_k: topK,
     },
+    onError: () => {
+      setLoading(false);
+    },
+    onFinish: () => {
+      setLoading(false);
+    },
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -53,6 +59,12 @@ export const ChatContainer = () => {
   };
 
   useEffect(scrollToBottom, [messages]);
+
+  const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    handleSubmit(event);
+  };
 
   return (
     <div className={`grid grid-cols-11 gap-4`}>
@@ -93,7 +105,7 @@ export const ChatContainer = () => {
             <div ref={messagesEndRef} />
           </div>
           <form
-            onSubmit={handleSubmit}
+            onSubmit={handleFormSubmit}
             className={`flex pt-4 border-t border-slate-300 p-2`}
           >
             <input

@@ -85,10 +85,10 @@
   dependencies:
     google-auth-library "^9.1.0"
 
-"@google/generative-ai@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@google/generative-ai/-/generative-ai-0.1.1.tgz#ecf0cd832620527f0e35c3aecc17c058d8ba52b8"
-  integrity sha512-cbzKa8mT9YkTrT4XUuENIuvlqiJjwDgcD2Ks4L99Az9dWLgdXn8xnETEAZLOpqzoGx+1PuATZqlUnVRAeLbMgA==
+"@google/generative-ai@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@google/generative-ai/-/generative-ai-0.1.2.tgz#0681b20f25799286fdefcc2791cdb8c50bbf5924"
+  integrity sha512-54easvKJpqnsW48LcplF/8bnLKvXeYe34rfMMdgqMVZEQmLOLEKZvbif4mFmyVwoMg1/6MPLwD703RLuSJKLJw==
 
 "@humanwhocodes/config-array@^0.11.13":
   version "0.11.13"

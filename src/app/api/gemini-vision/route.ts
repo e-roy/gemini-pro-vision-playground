@@ -3,6 +3,7 @@ import {
   GoogleGenerativeAI,
   HarmCategory,
   HarmBlockThreshold,
+  GenerateContentRequest,
 } from "@google/generative-ai";
 
 const safetySettings = [
@@ -27,28 +28,22 @@ const safetySettings = [
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-  const {
-    message,
-    images,
-    image_types,
-    temperature,
-    max_length,
-    top_p,
-    top_k,
-  } = await req.json();
+  const { message, media, media_types, temperature, max_length, top_p, top_k } =
+    await req.json();
   // console.log(temperature, max_length, top_p, top_k);
+  // console.log(media, media_types);
 
   const userMessage = message;
 
-  const reqContent = {
+  const reqContent: GenerateContentRequest = {
     contents: [
       {
         role: "user",
-        parts: images
-          .map((imageData: string, index: number) => ({
+        parts: media
+          .map((mediaData: string, index: number) => ({
             inline_data: {
-              mime_type: image_types[index],
-              data: imageData,
+              mime_type: media_types[index],
+              data: mediaData,
             },
           }))
           .concat([{ text: `"""${userMessage}"""` }]),
