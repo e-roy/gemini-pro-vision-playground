@@ -5,54 +5,85 @@ import {
   GoogleGenerativeAI,
   HarmCategory,
   HarmBlockThreshold,
-  Content,
+  GenerateContentRequest,
 } from "@google/generative-ai";
 
-const safetySettings = [
-  {
-    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-  {
-    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-    threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
-  },
-];
+const mapSafetyValueToThreshold = (value: number): HarmBlockThreshold => {
+  switch (value) {
+    case 0:
+      return HarmBlockThreshold.BLOCK_NONE;
+    case 1:
+      return HarmBlockThreshold.BLOCK_LOW_AND_ABOVE;
+    case 2:
+      return HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE;
+    case 3:
+      return HarmBlockThreshold.BLOCK_ONLY_HIGH;
+    default:
+      return HarmBlockThreshold.BLOCK_NONE;
+  }
+};
+
+const defaultSafetySettings = {
+  harassment: 0,
+  hateSpeech: 0,
+  sexuallyExplicit: 0,
+  dangerousContent: 0,
+};
 
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-  const { messages, temperature, max_length, top_p, top_k } = await req.json();
+  const { messages, temperature, max_length, top_p, top_k, safety_settings } =
+    await req.json();
   // console.log(temperature, max_length, top_p, top_k);
 
-  const chatHistory: Content[] = messages.map((m: Message) => {
-    if (m.role === "user") {
-      return {
-        role: "user",
-        parts: [{ text: m.content }],
-      };
-    }
-    if (m.role === "assistant") {
-      return {
-        role: "model",
-        parts: [{ text: m.content }],
-      };
-    }
-    return undefined;
-  });
+  const reqContent: GenerateContentRequest = {
+    contents: messages.map((m: Message) => {
+      if (m.role === "user") {
+        return {
+          role: "user",
+          parts: [{ text: m.content }],
+        };
+      }
+      if (m.role === "assistant") {
+        return {
+          role: "model",
+          parts: [{ text: m.content }],
+        };
+      }
+      return undefined;
+    }),
+  };
+
+  const incomingSafetySettings = safety_settings || defaultSafetySettings;
+
+  const mappedSafetySettings = [
+    {
+      category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+      threshold: mapSafetyValueToThreshold(incomingSafetySettings.harassment),
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+      threshold: mapSafetyValueToThreshold(incomingSafetySettings.hateSpeech),
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+      threshold: mapSafetyValueToThreshold(
+        incomingSafetySettings.sexuallyExplicit
+      ),
+    },
+    {
+      category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+      threshold: mapSafetyValueToThreshold(
+        incomingSafetySettings.dangerousContent
+      ),
+    },
+  ];
 
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
   const model = genAI.getGenerativeModel({
     model: "gemini-pro",
-    safetySettings,
+    safetySettings: mappedSafetySettings,
     generationConfig: {
       //   candidateCount: 0,
       //   stopSequences: [],
@@ -64,9 +95,7 @@ export async function POST(req: Request) {
   });
 
   try {
-    const streamingResp = await model.generateContentStream({
-      contents: chatHistory,
-    });
+    const streamingResp = await model.generateContentStream(reqContent);
 
     const stream = new ReadableStream({
       async start(controller) {

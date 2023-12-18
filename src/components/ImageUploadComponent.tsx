@@ -156,7 +156,7 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
           <button
             type="button"
             onClick={removeMedia}
-            className="absolute top-6 right-6 text-slate-500 hover:text-slate-700"
+            className="absolute top-2 right-2 text-slate-500 hover:text-slate-700"
           >
             <XCircle className="w-6 h-6" />
           </button>

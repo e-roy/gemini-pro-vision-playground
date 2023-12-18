@@ -9,6 +9,20 @@ import { TemperatureSelector } from "./control/TemperatureSelector";
 import { MaxLengthSelector } from "./control/MaxLengthSelector";
 import { TopPSelector } from "./control/TopPSelector";
 import { TopKSelector } from "./control/TopKSelector";
+import { SafetySelector } from "./control/SafetySelector";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+type SafetySettings = {
+  harassment: number;
+  hateSpeech: number;
+  sexuallyExplicit: number;
+  dangerousContent: number;
+};
 
 export const ChatContainer = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -17,6 +31,13 @@ export const ChatContainer = () => {
   const [maxLength, setMaxLength] = useState<number>(4000);
   const [topP, setTopP] = useState<number>(0.8);
   const [topK, setTopK] = useState<number>(40);
+
+  const [safetySettings, setSafetySettings] = useState<SafetySettings>({
+    harassment: 2,
+    hateSpeech: 2,
+    sexuallyExplicit: 2,
+    dangerousContent: 2,
+  });
 
   const handleTemperatureChange = (newTemperature: number[]) => {
     setTemperature(newTemperature[0]);
@@ -32,6 +53,16 @@ export const ChatContainer = () => {
 
   const handleTopKChange = (newTopK: number[]) => {
     setTopK(newTopK[0]);
+  };
+
+  const handleSafetyChange = (
+    type: keyof SafetySettings,
+    newValue: number[]
+  ) => {
+    setSafetySettings((prevState) => ({
+      ...prevState,
+      [type]: newValue[0],
+    }));
   };
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
@@ -74,13 +105,59 @@ export const ChatContainer = () => {
             value={temperature}
             onValueChange={handleTemperatureChange}
           />
-          <MaxLengthSelector
-            maxTokens={8192}
-            value={maxLength}
-            onValueChange={handleMaxLengthChange}
-          />
-          <TopPSelector value={topP} onValueChange={handleTopPChange} />
-          <TopKSelector value={topK} onValueChange={handleTopKChange} />
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>Advanced Settings</AccordionTrigger>
+
+              <AccordionContent>
+                <MaxLengthSelector
+                  maxTokens={2048}
+                  value={maxLength}
+                  onValueChange={handleMaxLengthChange}
+                />
+                <TopPSelector value={topP} onValueChange={handleTopPChange} />
+                <TopKSelector value={topK} onValueChange={handleTopKChange} />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger>Safety Settings</AccordionTrigger>
+              <AccordionContent>
+                <p>
+                  Adjust how likely you are to see responses that could be
+                  harmful. Content is blocked based on the probability that it
+                  is harmful.
+                </p>
+                <SafetySelector
+                  label="Harassment"
+                  value={safetySettings.harassment}
+                  onValueChange={(newValue) =>
+                    handleSafetyChange("harassment", newValue)
+                  }
+                />
+                <SafetySelector
+                  label="Hate Speech"
+                  value={safetySettings.hateSpeech}
+                  onValueChange={(newValue) =>
+                    handleSafetyChange("hateSpeech", newValue)
+                  }
+                />
+                <SafetySelector
+                  label="Sexually Explicit"
+                  value={safetySettings.sexuallyExplicit}
+                  onValueChange={(newValue) =>
+                    handleSafetyChange("sexuallyExplicit", newValue)
+                  }
+                />
+                <SafetySelector
+                  label="Dangerous Content"
+                  value={safetySettings.dangerousContent}
+                  onValueChange={(newValue) =>
+                    handleSafetyChange("dangerousContent", newValue)
+                  }
+                />
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
       <div className="flex flex-col h-[95vh] col-span-8">
