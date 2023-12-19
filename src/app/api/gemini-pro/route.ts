@@ -8,6 +8,8 @@ import {
   GenerateContentRequest,
 } from "@google/generative-ai";
 
+import { GeneralSettings } from "@/types";
+
 const mapSafetyValueToThreshold = (value: number): HarmBlockThreshold => {
   switch (value) {
     case 0:
@@ -33,9 +35,13 @@ const defaultSafetySettings = {
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-  const { messages, temperature, max_length, top_p, top_k, safety_settings } =
-    await req.json();
-  // console.log(temperature, max_length, top_p, top_k);
+  const { messages, general_settings, safety_settings } = await req.json();
+  const { temperature, maxLength, topP, topK } =
+    general_settings as GeneralSettings;
+  // console.log(temperature, maxLength, topP, topK);
+  // console.log("general_settings", general_settings);
+  // console.log("safety_settings", safety_settings);
+  // console.log("messages =================>", messages);
 
   const reqContent: GenerateContentRequest = {
     contents: messages.map((m: Message) => {
@@ -87,12 +93,15 @@ export async function POST(req: Request) {
     generationConfig: {
       //   candidateCount: 0,
       //   stopSequences: [],
-      maxOutputTokens: max_length,
-      temperature: temperature,
-      topP: top_p,
-      topK: top_k,
+      maxOutputTokens: maxLength,
+      temperature,
+      topP,
+      topK,
     },
   });
+
+  const countTokens = await model.countTokens(reqContent);
+  console.log("count tokens ------", countTokens);
 
   try {
     const streamingResp = await model.generateContentStream(reqContent);
@@ -104,7 +113,7 @@ export async function POST(req: Request) {
             if (chunk.candidates) {
               const parts = chunk.candidates[0].content.parts;
               const firstPart = parts[0];
-
+              // console.log("------------", firstPart);
               if (typeof firstPart.text === "string") {
                 controller.enqueue(firstPart.text);
               }

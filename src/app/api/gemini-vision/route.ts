@@ -1,4 +1,5 @@
 // api/gemini-vision/route.ts
+import { GeneralSettings } from "@/types";
 import {
   GoogleGenerativeAI,
   HarmCategory,
@@ -31,17 +32,11 @@ const defaultSafetySettings = {
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-  const {
-    message,
-    media,
-    media_types,
-    temperature,
-    max_length,
-    top_p,
-    top_k,
-    safety_settings,
-  } = await req.json();
-  // console.log(temperature, max_length, top_p, top_k);
+  const { message, media, media_types, general_settings, safety_settings } =
+    await req.json();
+  const { temperature, maxLength, topP, topK } =
+    general_settings as GeneralSettings;
+  // console.log(temperature, maxLength, topP, topK);
   // console.log(media, media_types);
   // console.log(safety_settings);
 
@@ -96,10 +91,10 @@ export async function POST(req: Request) {
     generationConfig: {
       //   candidateCount: 0,
       //   stopSequences: [],
-      maxOutputTokens: max_length,
-      temperature: temperature,
-      topP: top_p,
-      topK: top_k,
+      maxOutputTokens: maxLength,
+      temperature,
+      topP,
+      topK,
     },
   });
 

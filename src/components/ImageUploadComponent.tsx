@@ -113,14 +113,15 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
     return (
       <Card
         {...getRootProps()}
-        className="relative overflow-auto flex justify-center items-center h-[30vh]"
-        style={{ maxHeight: "48vh" }}
+        className="relative overflow-auto flex justify-center items-center h-32 w-32"
       >
         <input {...getInputProps()} className="hidden" />
         {isDragActive && (
           <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-700 bg-slate-100/90 z-10">
             <Import />
-            <p className="font-semibold text-2xl">Drop Image Here</p>
+            <p className="font-semibold text-2xl text-center">
+              Drop Image Here
+            </p>
           </div>
         )}
 
@@ -130,15 +131,13 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
             <img
               src={media.src}
               alt="Uploaded"
-              className="max-w-full max-h-full object-contain"
-              style={{ maxHeight: "calc(48vh - 2rem)" }}
+              className="max-w-full max-h-full object-contain h-32 w-32"
             />
           ) : (
             <video
               src={media.src}
               controls
-              className="max-w-full max-h-full object-contain"
-              style={{ maxHeight: "calc(48vh - 2rem)" }}
+              className="max-w-full max-h-full object-contain h-32 w-32"
             />
           )
         ) : (

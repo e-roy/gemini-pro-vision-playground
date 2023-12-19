@@ -10,31 +10,42 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
-interface TopPSelectorProps {
+interface SettingsSelectorProps {
+  label: string;
+  hoverText: string;
+  step: number;
+  max: number;
   value: number;
   onValueChange: (newValue: number[]) => void;
 }
 
-export function TopPSelector({ value, onValueChange }: TopPSelectorProps) {
+export function SettingsSelector({
+  label,
+  hoverText,
+  step,
+  max,
+  value,
+  onValueChange,
+}: SettingsSelectorProps) {
   return (
     <div className="grid gap-2 pt-2">
       <HoverCard openDelay={200}>
         <HoverCardTrigger asChild>
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="top-p">Top P</Label>
+              <Label htmlFor="temperature">{label}</Label>
               <span className="w-12 rounded-md border border-transparent px-2 py-0.5 text-right text-sm text-muted-foreground hover:border-border">
                 {value}
               </span>
             </div>
             <Slider
-              id="top-p"
-              max={1}
+              id="temperature"
+              max={max}
               defaultValue={[value]}
-              step={0.1}
+              step={step}
               onValueChange={onValueChange}
               className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
-              aria-label="Top P"
+              aria-label="Temperature"
             />
           </div>
         </HoverCardTrigger>
@@ -43,12 +54,7 @@ export function TopPSelector({ value, onValueChange }: TopPSelectorProps) {
           className="w-[260px] text-sm"
           side="right"
         >
-          Top-p changes how the model selects tokens for output. Tokens are
-          selected from most probable to least until the sum of their
-          probabilities equals the top-p value. For example, if tokens A, B, and
-          C have a probability of .3, .2, and .1 and the top-p value is .5, then
-          the model will select either A or B as the next token (using
-          temperature). The default top-p value is .8.
+          {hoverText}
         </HoverCardContent>
       </HoverCard>
     </div>
