@@ -9,10 +9,11 @@ const MAX_IMAGE_SIZE = 1024 * 1024; // 1 MB
 
 interface ImageUploadComponentProps {
   onFileUpload: (data: string, mimeType: string) => void;
+  onRemove: () => void;
 }
 
 const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
-  function ImageUploadComponent({ onFileUpload }) {
+  function ImageUploadComponent({ onFileUpload, onRemove }) {
     const [media, setMedia] = useState<{
       type: "image" | "video";
       src: string;
@@ -21,8 +22,8 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
 
     const removeMedia = useCallback(() => {
       setMedia(null);
-      onFileUpload("", "");
-    }, [onFileUpload]);
+      onRemove(); // Use the onRemove prop instead
+    }, [onRemove]);
 
     const resizeImage = useCallback(
       (file: File): void => {

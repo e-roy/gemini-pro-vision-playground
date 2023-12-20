@@ -1,19 +1,14 @@
 "use client";
 // providers/ControlContext.tsx
-import {
-  createContext,
-  useState,
-  useCallback,
-  useContext,
-  ReactNode,
-} from "react";
+import { createContext, useState, useContext, ReactNode } from "react";
 
 import { MediaData, SafetySettings, GeneralSettings } from "@/types";
 
 interface ControlContextState {
   selectedModel: "gemini-pro" | "gemini-pro-vision";
-  firstMediaData: MediaData | null;
-  secondMediaData: MediaData | null;
+  mediaDataList: MediaData[];
+  handleMediaUpload: (data: string, mimeType: string, index: number) => void;
+  removeMediaData: (index: number) => void;
   generalSettings: GeneralSettings;
   handleGeneralSettingsChange: (
     setting: keyof GeneralSettings,
@@ -22,8 +17,6 @@ interface ControlContextState {
   safetySettings: SafetySettings;
   handleModelChange: (model: "gemini-pro" | "gemini-pro-vision") => void;
   handleSafetyChange: (type: keyof SafetySettings, newValue: number[]) => void;
-  handleFirstMediaUpload: (data: string, mimeType: string) => void;
-  handleSecondMediaUpload: (data: string, mimeType: string) => void;
 }
 
 export const ControlContext = createContext<ControlContextState | undefined>(
@@ -49,10 +42,7 @@ export const ControlProvider = ({ children }: { children: ReactNode }) => {
     dangerousContent: 2,
   });
 
-  const [firstMediaData, setFirstMediaData] = useState<MediaData | null>(null);
-  const [secondMediaData, setSecondMediaData] = useState<MediaData | null>(
-    null
-  );
+  const [mediaDataList, setMediaDataList] = useState<MediaData[]>([]);
 
   const handleModelChange = (model: "gemini-pro" | "gemini-pro-vision") => {
     setSelectedModel(model);
@@ -78,33 +68,34 @@ export const ControlProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
-  const handleFirstMediaUpload = useCallback(
-    (data: string, mimeType: string) => {
-      setFirstMediaData({ data, mimeType });
-    },
-    []
-  );
+  const handleMediaUpload = (data: string, mimeType: string, index: number) => {
+    setMediaDataList((prevMediaData) => {
+      const newMediaData = [...prevMediaData];
+      newMediaData[index] = { data, mimeType };
+      return newMediaData;
+    });
+  };
 
-  const handleSecondMediaUpload = useCallback(
-    (data: string, mimeType: string) => {
-      setSecondMediaData({ data, mimeType });
-    },
-    []
-  );
+  const removeMediaData = (index: number) => {
+    setMediaDataList((prevMediaData) => {
+      const newMediaData = [...prevMediaData];
+      newMediaData.splice(index, 1);
+      return newMediaData;
+    });
+  };
 
   return (
     <ControlContext.Provider
       value={{
         selectedModel,
-        firstMediaData,
-        secondMediaData,
+        mediaDataList,
+        handleMediaUpload,
+        removeMediaData,
         generalSettings,
         handleGeneralSettingsChange,
         safetySettings,
         handleModelChange,
         handleSafetyChange,
-        handleFirstMediaUpload,
-        handleSecondMediaUpload,
       }}
     >
       {children}

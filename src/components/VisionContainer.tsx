@@ -7,10 +7,8 @@ import { Loader, Send } from "lucide-react";
 
 import { useControlContext } from "@/providers/ControlContext";
 
-import { MediaData } from "@/types";
-
 export const VisionContainer = () => {
-  const { generalSettings, safetySettings, firstMediaData, secondMediaData } =
+  const { generalSettings, safetySettings, mediaDataList } =
     useControlContext();
 
   const [result, setResult] = useState<string>("");
@@ -21,7 +19,9 @@ export const VisionContainer = () => {
   const isFormSubmittable = () => {
     return (
       prompt.trim() !== "" &&
-      (firstMediaData !== null || secondMediaData !== null)
+      mediaDataList.some(
+        (media) => media !== null && media.data !== "" && media.mimeType !== ""
+      )
     );
   };
 
@@ -34,30 +34,26 @@ export const VisionContainer = () => {
     setResult("");
     setPrompt("");
 
-    // Filter out any invalid image data (where base64 or mimeType is an empty string)
-    const mediaData = [firstMediaData, secondMediaData].filter(
-      (data): data is MediaData => {
-        return data !== null && data.data !== "" && data.mimeType !== "";
-      }
+    // Filter out any invalid image data
+    const validMediaData = mediaDataList.filter(
+      (data) => data.data !== "" && data.mimeType !== ""
     );
 
     // If there are no valid images and the prompt is empty, do not proceed
-    if (mediaData.length === 0) return;
+    if (validMediaData.length === 0) return;
 
-    const mediaBase64 = mediaData.map((data) =>
+    const mediaBase64 = validMediaData.map((data) =>
       data.data.replace(/^data:(image|video)\/\w+;base64,/, "")
     );
-    const mediaTypes = mediaData.map((data) => data.mimeType);
+    const mediaTypes = validMediaData.map((data) => data.mimeType);
+
+    // console.log(mediaBase64.length, mediaTypes);
 
     const body = JSON.stringify({
       message: prompt,
       media: mediaBase64,
       media_types: mediaTypes,
       general_settings: generalSettings,
-      // temperature: generalSettings.temperature,
-      // max_length: generalSettings.maxLength,
-      // top_p: generalSettings.topP,
-      // top_k: generalSettings.topK,
       safety_settings: safetySettings,
     });
 
@@ -99,14 +95,16 @@ export const VisionContainer = () => {
       <Card className="flex flex-col flex-1 overflow-hidden">
         {userQuestion && <div className="bg-slate-200 p-4">{userQuestion}</div>}
         <div className="flex-1 overflow-y-auto p-4">
-          {!firstMediaData?.data && !secondMediaData?.data && (
+          <MarkdownViewer text={result} />
+          {mediaDataList.every(
+            (media) => media === null || media.data === ""
+          ) && (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="text-2xl text-slate-700 font-medium">
                 Add an image to get started
               </div>
             </div>
           )}
-          <MarkdownViewer text={result} />
         </div>
         <form
           onSubmit={handleSubmitForm}

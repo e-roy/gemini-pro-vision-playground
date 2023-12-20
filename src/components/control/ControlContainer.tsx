@@ -20,6 +20,8 @@ import { SettingsSelector } from "./SettingsSelector";
 
 import { settings_data } from "./settings_data";
 
+const MAX_IMAGES = 4;
+
 export const ControlContainer = () => {
   const {
     selectedModel,
@@ -28,12 +30,24 @@ export const ControlContainer = () => {
     safetySettings,
     handleModelChange,
     handleSafetyChange,
-    handleFirstMediaUpload,
-    handleSecondMediaUpload,
+    handleMediaUpload,
+    removeMediaData,
   } = useControlContext();
 
+  const handleImageUpload = (data: string, mimeType: string, index: number) => {
+    if (index < MAX_IMAGES) {
+      handleMediaUpload(data, mimeType, index);
+    } else {
+      console.error("Maximum number of images reached");
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    removeMediaData(index);
+  };
+
   return (
-    <div className="space-y-2 col-span-3 py-4">
+    <div className="space-y-2 py-4">
       <div>
         <DropdownMenu>
           <DropdownMenuTrigger
@@ -59,7 +73,9 @@ export const ControlContainer = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className={``}>
+      <div
+        className={`flex flex-col flex-1 overflow-y-scroll no-scrollbar max-h-[80vh]`}
+      >
         <SettingsSelector
           label={settings_data.temperature.label}
           hoverText={settings_data.temperature.hoverText}
@@ -146,13 +162,23 @@ export const ControlContainer = () => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+
+        {selectedModel === "gemini-pro-vision" && (
+          <div className="space-y-4 my-8">
+            <div className="grid grid-cols-2 gap-4 justify-start">
+              {Array.from({ length: MAX_IMAGES }, (_, index) => (
+                <ImageUploadComponent
+                  key={index}
+                  onFileUpload={(data, mimeType) =>
+                    handleImageUpload(data, mimeType, index)
+                  }
+                  onRemove={() => handleRemoveImage(index)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-      {selectedModel === "gemini-pro-vision" && (
-        <div className={`flex w-full gap-4`}>
-          <ImageUploadComponent onFileUpload={handleFirstMediaUpload} />
-          <ImageUploadComponent onFileUpload={handleSecondMediaUpload} />
-        </div>
-      )}
     </div>
   );
 };
