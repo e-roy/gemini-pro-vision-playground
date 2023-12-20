@@ -1,6 +1,13 @@
 "use client";
 // components/ChatContainer.tsx
-import React, { useRef, useEffect, useState, FormEvent } from "react";
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  FormEvent,
+  KeyboardEvent,
+  useCallback,
+} from "react";
 import { Message, useChat } from "ai/react";
 import { Loader, Send } from "lucide-react";
 import { Card } from "./ui/card";
@@ -26,30 +33,68 @@ export const ChatContainer = () => {
     },
   });
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
-  useEffect(scrollToBottom, [messages]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
+
+  const resetTextareaHeight = useCallback(() => {
+    if (textareaRef.current) {
+      // Reset height to 1 row height, assuming 20px as the line height
+      textareaRef.current.style.height = "2.5rem";
+    }
+  }, []);
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     handleSubmit(event);
+    resetTextareaHeight();
   };
 
-  const handleTextAreaInput = (event: React.FormEvent<HTMLTextAreaElement>) => {
-    handleInputChange(event as React.ChangeEvent<HTMLTextAreaElement>);
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
+        event.preventDefault();
+        setLoading(true);
+        handleSubmit(event as unknown as FormEvent<HTMLFormElement>);
+        resetTextareaHeight();
+      } else if (event.key === "Enter") {
+        // Allow for Ctrl+Enter or Shift+Enter to insert new lines
+        event.preventDefault();
+        const textarea = event.currentTarget;
+        const cursorPosition = textarea.selectionStart;
+        textarea.value =
+          textarea.value.slice(0, cursorPosition) +
+          "\n" +
+          textarea.value.slice(cursorPosition);
+        handleInputChange(
+          event as unknown as React.ChangeEvent<HTMLTextAreaElement>
+        );
+        textarea.selectionStart = cursorPosition + 1;
+        textarea.selectionEnd = cursorPosition + 1;
+        textarea.style.height = "inherit";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+      }
+    },
+    [handleInputChange, handleSubmit, resetTextareaHeight]
+  );
 
-    const target = event.currentTarget;
-    target.style.height = "inherit";
-    target.style.height = `${target.scrollHeight}px`;
-  };
-
+  const handleTextAreaInput = useCallback(
+    (event: React.FormEvent<HTMLTextAreaElement>) => {
+      handleInputChange(event as React.ChangeEvent<HTMLTextAreaElement>);
+      const target = event.currentTarget;
+      target.style.height = "auto";
+      target.style.height = `${target.scrollHeight}px`;
+    },
+    [handleInputChange]
+  );
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
@@ -74,20 +119,22 @@ export const ChatContainer = () => {
         </div>
         <form
           onSubmit={handleFormSubmit}
-          className={`flex pt-4 border-t border-slate-300 p-2`}
+          className="flex pt-4 border-t border-slate-300 p-2"
         >
           <textarea
+            ref={textareaRef}
             value={input}
             onInput={handleTextAreaInput}
             onChange={handleInputChange}
+            onKeyDown={handleKeyPress}
             rows={1}
-            className="flex-1 p-2 resize-none overflow-hidden"
+            className="flex-1 p-2 resize-none overflow-hidden min-h-16"
             placeholder="Chat with Gemini Pro"
           />
-          <div className={`mt-auto`}>
+          <div className="mt-auto">
             <button
               type="submit"
-              className=" ml-2 p-2 rounded-full border bg-blue-500 hover:bg-blue-600 text-white"
+              className="ml-2 p-2 rounded-full border bg-blue-500 hover:bg-blue-600 text-white"
               disabled={loading}
             >
               {loading ? (

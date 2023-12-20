@@ -113,9 +113,11 @@ export async function POST(req: Request) {
             if (chunk.candidates) {
               const parts = chunk.candidates[0].content.parts;
               const firstPart = parts[0];
-              // console.log("------------", firstPart);
               if (typeof firstPart.text === "string") {
-                controller.enqueue(firstPart.text);
+                // Encode the string text as bytes
+                const textEncoder = new TextEncoder();
+                const encodedText = textEncoder.encode(firstPart.text);
+                controller.enqueue(encodedText);
               }
             }
           }
