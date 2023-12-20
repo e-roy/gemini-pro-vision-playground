@@ -12,6 +12,7 @@ export const ChatContainer = () => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
+    id: "gemini-pro",
     api: `/api/gemini-pro`,
     body: {
       general_settings: generalSettings,
@@ -41,6 +42,14 @@ export const ChatContainer = () => {
     handleSubmit(event);
   };
 
+  const handleTextAreaInput = (event: React.FormEvent<HTMLTextAreaElement>) => {
+    handleInputChange(event as React.ChangeEvent<HTMLTextAreaElement>);
+
+    const target = event.currentTarget;
+    target.style.height = "inherit";
+    target.style.height = `${target.scrollHeight}px`;
+  };
+
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
@@ -67,24 +76,27 @@ export const ChatContainer = () => {
           onSubmit={handleFormSubmit}
           className={`flex pt-4 border-t border-slate-300 p-2`}
         >
-          <input
-            type="text"
+          <textarea
             value={input}
+            onInput={handleTextAreaInput}
             onChange={handleInputChange}
-            className="flex-1 p-2"
+            rows={1}
+            className="flex-1 p-2 resize-none overflow-hidden"
             placeholder="Chat with Gemini Pro"
           />
-          <button
-            type="submit"
-            className="ml-2 p-2 rounded-full border bg-blue-500 hover:bg-blue-600 text-white"
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader className="animate-spin" />
-            ) : (
-              <Send className="m-auto" />
-            )}
-          </button>
+          <div className={`mt-auto`}>
+            <button
+              type="submit"
+              className=" ml-2 p-2 rounded-full border bg-blue-500 hover:bg-blue-600 text-white"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader className="animate-spin" />
+              ) : (
+                <Send className="m-auto" />
+              )}
+            </button>
+          </div>
         </form>
       </Card>
     </div>

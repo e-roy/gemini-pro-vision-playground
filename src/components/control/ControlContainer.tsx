@@ -164,8 +164,8 @@ export const ControlContainer = () => {
         </Accordion>
 
         {selectedModel === "gemini-pro-vision" && (
-          <div className="space-y-4 my-8">
-            <div className="grid grid-cols-2 gap-4 justify-start">
+          <div className="my-8">
+            <div className="grid grid-cols-2 gap-2">
               {Array.from({ length: MAX_IMAGES }, (_, index) => (
                 <ImageUploadComponent
                   key={index}
