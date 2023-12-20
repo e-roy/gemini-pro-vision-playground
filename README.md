@@ -1,7 +1,7 @@
 # Gemini Pro Vision Playground
 
 
-This is project is a simple playground for using the Gemini Pro Vision and Gemini Pro AI models.
+This project is a simple playground for using the Gemini Pro Vision and Gemini Pro AI models.
 
 
 
