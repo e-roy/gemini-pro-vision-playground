@@ -118,7 +118,7 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
       >
         <input {...getInputProps()} className="hidden" />
         {isDragActive && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-700 bg-slate-100/90 z-10">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-primary/90 bg-slate-primary-10 z-10">
             <Import />
             <p className="font-semibold text-2xl text-center">
               Drop Image Here
@@ -142,23 +142,27 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
             />
           )
         ) : (
-          <button
-            type="button"
-            onClick={open}
-            className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 hover:text-slate-700 bg-slate-100/90"
-          >
-            <Upload />
-            <p className="font-semibold text-2xl">Drop Image Here</p>
-            <p className={`text-sm text-red-500`}>{error}</p>
-          </button>
+          <>
+            {!isDragActive && (
+              <button
+                type="button"
+                onClick={open}
+                className="absolute inset-0 flex flex-col items-center justify-center text-primary/50 hover:text-primary/90 bg-primary/10"
+              >
+                {<Upload />}
+                <p className="font-semibold text-2xl">Drop Image Here</p>
+                <p className={`text-sm text-red-500`}>{error}</p>
+              </button>
+            )}
+          </>
         )}
         {media && (
           <button
             type="button"
             onClick={removeMedia}
-            className="absolute top-2 right-2 text-slate-500 hover:text-slate-700"
+            className="absolute top-1 right-1 text-primary/70 hover:text-primary/90"
           >
-            <XCircle className="w-6 h-6" />
+            <XCircle className="w-5 h-5" />
           </button>
         )}
       </Card>

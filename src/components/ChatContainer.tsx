@@ -13,6 +13,7 @@ import { Loader, Send } from "lucide-react";
 import { Card } from "./ui/card";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { useControlContext } from "@/providers/ControlContext";
+import { Button } from "./ui/button";
 
 export const ChatContainer = () => {
   const { generalSettings, safetySettings } = useControlContext();
@@ -108,7 +109,9 @@ export const ChatContainer = () => {
             >
               <div
                 className={`${
-                  message.role === "user" ? "bg-slate-300" : "bg-slate-200"
+                  message.role === "user"
+                    ? "bg-primary/20 dark:bg-primary/20"
+                    : "bg-primary/10 dark:bg-primary/10"
                 } px-4 py-2 rounded-lg`}
               >
                 <MarkdownViewer text={message.content} />
@@ -119,7 +122,7 @@ export const ChatContainer = () => {
         </div>
         <form
           onSubmit={handleFormSubmit}
-          className="flex pt-4 border-t border-slate-300 p-2"
+          className="flex gap-4 pt-4 border-t border-primary/70 p-2"
         >
           <textarea
             ref={textareaRef}
@@ -128,21 +131,17 @@ export const ChatContainer = () => {
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
             rows={1}
-            className="flex-1 p-2 resize-none overflow-hidden min-h-16"
+            className="flex-1 p-2 resize-none overflow-hidden min-h-8 rounded"
             placeholder="Chat with Gemini Pro"
           />
-          <div className="mt-auto">
-            <button
-              type="submit"
-              className="ml-2 p-2 rounded-full border bg-blue-500 hover:bg-blue-600 text-white"
-              disabled={loading}
-            >
+          <div className="m-auto">
+            <Button type="submit" variant={`icon`} disabled={loading}>
               {loading ? (
                 <Loader className="animate-spin" />
               ) : (
                 <Send className="m-auto" />
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </Card>

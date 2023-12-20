@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Loader, Send } from "lucide-react";
 
 import { useControlContext } from "@/providers/ControlContext";
+import { Button } from "./ui/button";
 
 export const VisionContainer = () => {
   const { generalSettings, safetySettings, mediaDataList } =
@@ -93,14 +94,16 @@ export const VisionContainer = () => {
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
-        {userQuestion && <div className="bg-slate-200 p-4">{userQuestion}</div>}
+        {userQuestion && (
+          <div className="bg-primary/20 p-4">{userQuestion}</div>
+        )}
         <div className="flex-1 overflow-y-auto p-4">
           <MarkdownViewer text={result} />
           {mediaDataList.every(
             (media) => media === null || media.data === ""
           ) && (
             <div className="flex flex-col items-center justify-center h-full">
-              <div className="text-2xl text-slate-700 font-medium">
+              <div className="text-2xl text-primary/80 font-medium">
                 Add an image to get started
               </div>
             </div>
@@ -108,17 +111,29 @@ export const VisionContainer = () => {
         </div>
         <form
           onSubmit={handleSubmitForm}
-          className={`flex pt-4 border-t border-slate-300 p-2`}
+          className="flex gap-4 pt-4 border-t border-primary/70 p-2"
         >
           <input
             type="text"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="flex-1 p-2"
+            className="flex-1 p-2 rounded"
             placeholder="Ask a question about the images"
           />
-
-          <button
+          <div className="m-auto">
+            <Button
+              type="submit"
+              variant={`icon`}
+              disabled={!isFormSubmittable() || loading}
+            >
+              {loading ? (
+                <Loader className="animate-spin" />
+              ) : (
+                <Send className="m-auto" />
+              )}
+            </Button>
+          </div>
+          {/* <button
             type="submit"
             className="ml-2 p-2 rounded-full border bg-blue-500 hover:bg-blue-600 text-white"
             disabled={!isFormSubmittable() || loading}
@@ -128,7 +143,7 @@ export const VisionContainer = () => {
             ) : (
               <Send className="m-auto" />
             )}
-          </button>
+          </button> */}
         </form>
       </Card>
     </div>

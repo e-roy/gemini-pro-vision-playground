@@ -33,19 +33,19 @@ export function SettingsSelector({
         <HoverCardTrigger asChild>
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="temperature">{label}</Label>
+              <Label htmlFor={label}>{label}</Label>
               <span className="w-12 rounded-md border border-transparent px-2 py-0.5 text-right text-sm text-muted-foreground hover:border-border">
                 {value}
               </span>
             </div>
             <Slider
-              id="temperature"
+              id={label}
               max={max}
               defaultValue={[value]}
               step={step}
               onValueChange={onValueChange}
               className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4"
-              aria-label="Temperature"
+              aria-label={label}
             />
           </div>
         </HoverCardTrigger>
