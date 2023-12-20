@@ -1,8 +1,14 @@
 # Gemini Pro Vision Playground
 
-https://github.com/e-roy/gemini-pro-vision-playground/assets/70700747/a39416bd-eb4f-45ac-bc33-a777332e4835
 
 This is project is a simple playground for using the Gemini Pro Vision and Gemini Pro AI models.
+
+
+
+https://github.com/e-roy/gemini-pro-vision-playground/assets/70700747/e0e80929-285c-441f-87f5-34d68593b787
+
+
+
 
 ## Getting Started
 
