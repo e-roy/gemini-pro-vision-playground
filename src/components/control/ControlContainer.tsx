@@ -17,6 +17,7 @@ import { useControlContext } from "@/providers/ControlContext";
 
 import { ChevronDown } from "lucide-react";
 import { SettingsSelector } from "./SettingsSelector";
+import { ExtraButtons } from "./ExtraButtons";
 
 import { settings_data } from "./settings_data";
 
@@ -179,6 +180,7 @@ export const ControlContainer = () => {
           </div>
         )}
       </div>
+      <ExtraButtons />
     </div>
   );
 };

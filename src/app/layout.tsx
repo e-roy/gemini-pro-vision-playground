@@ -5,10 +5,11 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 import { Providers } from "@/providers";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Gemini Vision Playground",
-  description: "A Playground for Gemini Vision",
+  title: "Simple Gemini Vision Playground",
+  description: "A Simple Playground for Gemini Vision",
 };
 
 export default function RootLayout({
@@ -17,9 +18,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Providers>{children}</Providers>
+        </ThemeProvider>
       </body>
     </html>
   );
