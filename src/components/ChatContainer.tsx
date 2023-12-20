@@ -47,7 +47,6 @@ export const ChatContainer = () => {
 
   const resetTextareaHeight = useCallback(() => {
     if (textareaRef.current) {
-      // Reset height to 1 row height, assuming 20px as the line height
       textareaRef.current.style.height = "2.5rem";
     }
   }, []);
@@ -96,6 +95,7 @@ export const ChatContainer = () => {
     },
     [handleInputChange]
   );
+
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
