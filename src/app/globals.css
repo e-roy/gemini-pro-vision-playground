@@ -93,3 +93,19 @@
         /* Firefox */
     }
 }
+
+@keyframes typing-bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.typing-dot {
+    animation: typing-bounce 1.4s infinite;
+}
