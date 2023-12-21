@@ -114,7 +114,7 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
     return (
       <Card
         {...getRootProps()}
-        className="relative overflow-auto flex justify-center items-center h-32 w-32"
+        className="relative overflow-auto flex justify-center items-center min-h-32 min-w-32"
       >
         <input {...getInputProps()} className="hidden" />
         {isDragActive && (
@@ -132,7 +132,7 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
             <img
               src={media.src}
               alt="Uploaded"
-              className="max-w-full max-h-full object-contain h-32 w-32"
+              className="max-w-full max-h-full object-contain min-h-32 min-w-32"
             />
           ) : (
             <video

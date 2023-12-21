@@ -5,15 +5,13 @@ import React, {
   useEffect,
   useState,
   FormEvent,
-  KeyboardEvent,
   useCallback,
 } from "react";
 import { Message, useChat } from "ai/react";
-import { Loader, Send } from "lucide-react";
 import { Card } from "./ui/card";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { useControlContext } from "@/providers/ControlContext";
-import { Button } from "./ui/button";
+import { CommonForm } from "./CommonForm";
 
 export const ChatContainer = () => {
   const { generalSettings, safetySettings } = useControlContext();
@@ -34,7 +32,6 @@ export const ChatContainer = () => {
     },
   });
 
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
@@ -45,56 +42,11 @@ export const ChatContainer = () => {
     scrollToBottom();
   }, [messages, scrollToBottom]);
 
-  const resetTextareaHeight = useCallback(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "2.5rem";
-    }
-  }, []);
-
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     handleSubmit(event);
-    resetTextareaHeight();
   };
-
-  const handleKeyPress = useCallback(
-    (event: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
-        event.preventDefault();
-        setLoading(true);
-        handleSubmit(event as unknown as FormEvent<HTMLFormElement>);
-        resetTextareaHeight();
-      } else if (event.key === "Enter") {
-        // Allow for Ctrl+Enter or Shift+Enter to insert new lines
-        event.preventDefault();
-        const textarea = event.currentTarget;
-        const cursorPosition = textarea.selectionStart;
-        textarea.value =
-          textarea.value.slice(0, cursorPosition) +
-          "\n" +
-          textarea.value.slice(cursorPosition);
-        handleInputChange(
-          event as unknown as React.ChangeEvent<HTMLTextAreaElement>
-        );
-        textarea.selectionStart = cursorPosition + 1;
-        textarea.selectionEnd = cursorPosition + 1;
-        textarea.style.height = "inherit";
-        textarea.style.height = `${textarea.scrollHeight}px`;
-      }
-    },
-    [handleInputChange, handleSubmit, resetTextareaHeight]
-  );
-
-  const handleTextAreaInput = useCallback(
-    (event: React.FormEvent<HTMLTextAreaElement>) => {
-      handleInputChange(event as React.ChangeEvent<HTMLTextAreaElement>);
-      const target = event.currentTarget;
-      target.style.height = "auto";
-      target.style.height = `${target.scrollHeight}px`;
-    },
-    [handleInputChange]
-  );
 
   return (
     <div className="flex flex-col h-[95vh]">
@@ -120,30 +72,14 @@ export const ChatContainer = () => {
           ))}
           <div ref={messagesEndRef} />
         </div>
-        <form
-          onSubmit={handleFormSubmit}
-          className="flex gap-4 pt-4 border-t border-primary/70 p-2"
-        >
-          <textarea
-            ref={textareaRef}
-            value={input}
-            onInput={handleTextAreaInput}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyPress}
-            rows={1}
-            className="flex-1 p-2 resize-none overflow-hidden min-h-8 rounded"
-            placeholder="Chat with Gemini Pro"
-          />
-          <div className="m-auto">
-            <Button type="submit" variant={`icon`} disabled={loading}>
-              {loading ? (
-                <Loader className="animate-spin" />
-              ) : (
-                <Send className="m-auto" />
-              )}
-            </Button>
-          </div>
-        </form>
+        <CommonForm
+          value={input}
+          placeholder="Chat with Gemini Pro"
+          loading={loading}
+          onInputChange={handleInputChange}
+          onFormSubmit={handleFormSubmit}
+          isSubmittable={input.trim() !== ""}
+        />
       </Card>
     </div>
   );
