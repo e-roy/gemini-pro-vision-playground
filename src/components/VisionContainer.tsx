@@ -1,18 +1,11 @@
 "use client";
 // componnets/VisionContainer.tsx
-import React, {
-  useState,
-  useRef,
-  useCallback,
-  KeyboardEvent,
-  FormEvent,
-} from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { MarkdownViewer } from "@/components/MarkdownViewer";
 import { Card } from "@/components/ui/card";
-import { Loader, Send } from "lucide-react";
 
 import { useControlContext } from "@/providers/ControlContext";
-import { Button } from "./ui/button";
+import { CommonForm } from "./CommonForm";
 
 export const VisionContainer = () => {
   const { generalSettings, safetySettings, mediaDataList } =
@@ -109,46 +102,6 @@ export const VisionContainer = () => {
     }
   }, []);
 
-  const handleKeyPress = useCallback(
-    (event: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (event.key === "Enter" && !event.ctrlKey && !event.shiftKey) {
-        event.preventDefault();
-        if (isFormSubmittable()) {
-          setLoading(true);
-          handleSubmitForm(event as unknown as FormEvent<HTMLFormElement>);
-        }
-      } else if (event.key === "Enter") {
-        // Allow for Ctrl+Enter or Shift+Enter to insert new lines
-        event.preventDefault();
-        const textarea = event.currentTarget;
-        const cursorPosition = textarea.selectionStart;
-        textarea.value =
-          textarea.value.slice(0, cursorPosition) +
-          "\n" +
-          textarea.value.slice(cursorPosition);
-        setPrompt(textarea.value);
-        textarea.selectionStart = cursorPosition + 1;
-        textarea.selectionEnd = cursorPosition + 1;
-        adjustTextareaHeight(textarea);
-      }
-    },
-    [setPrompt, isFormSubmittable, handleSubmitForm]
-  );
-
-  const handleTextAreaInput = useCallback(
-    (event: React.FormEvent<HTMLTextAreaElement>) => {
-      const target = event.currentTarget;
-      setPrompt(target.value);
-      adjustTextareaHeight(target);
-    },
-    [setPrompt]
-  );
-
-  const adjustTextareaHeight = (target: HTMLTextAreaElement) => {
-    target.style.height = "auto";
-    target.style.height = `${target.scrollHeight}px`;
-  };
-
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
@@ -167,34 +120,14 @@ export const VisionContainer = () => {
             </div>
           )}
         </div>
-        <form
-          onSubmit={handleSubmitForm}
-          className="flex gap-4 pt-4 border-t border-primary/70 p-2"
-        >
-          <textarea
-            ref={textareaRef}
-            value={prompt}
-            onInput={handleTextAreaInput}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handleKeyPress}
-            rows={1}
-            className="flex-1 p-2 resize-none overflow-hidden min-h-8 rounded"
-            placeholder="Ask a question about the images"
-          />
-          <div className="m-auto">
-            <Button
-              type="submit"
-              variant={`icon`}
-              disabled={!isFormSubmittable() || loading}
-            >
-              {loading ? (
-                <Loader className="animate-spin" />
-              ) : (
-                <Send className="m-auto" />
-              )}
-            </Button>
-          </div>
-        </form>
+        <CommonForm
+          value={prompt}
+          placeholder="Ask a question about the images"
+          loading={loading}
+          onInputChange={(e) => setPrompt(e.target.value)}
+          onFormSubmit={handleSubmitForm}
+          isSubmittable={isFormSubmittable()}
+        />
       </Card>
     </div>
   );

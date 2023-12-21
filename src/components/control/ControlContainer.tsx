@@ -166,7 +166,7 @@ export const ControlContainer = () => {
 
         {selectedModel === "gemini-pro-vision" && (
           <div className="my-8">
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-2 gap-2">
               {Array.from({ length: MAX_IMAGES }, (_, index) => (
                 <ImageUploadComponent
                   key={index}
