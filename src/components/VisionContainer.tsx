@@ -1,12 +1,15 @@
 "use client";
 // componnets/VisionContainer.tsx
 import React, { useState, useCallback } from "react";
-import { MarkdownViewer } from "@/components/MarkdownViewer";
+import { useControlContext } from "@/providers/ControlContext";
 import { Card } from "@/components/ui/card";
 
-import { useControlContext } from "@/providers/ControlContext";
+import { MarkdownViewer } from "./MarkdownViewer";
 import { CommonForm } from "./CommonForm";
 import { TypingBubble } from "./TypingBubble";
+
+import { RefreshCcw } from "lucide-react";
+import { Button } from "./ui/button";
 
 export const VisionContainer = () => {
   const { generalSettings, safetySettings, mediaDataList } =
@@ -26,33 +29,24 @@ export const VisionContainer = () => {
     );
   }, [prompt, mediaDataList]);
 
-  const handleSubmitForm = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-
-      if (!isFormSubmittable()) return;
-      setLoading(true);
-      setUserQuestion(prompt);
-      setResult("");
-      setPrompt("");
-
+  const makeApiCall = useCallback(
+    async (message: string) => {
       // Filter out any invalid image data
       const validMediaData = mediaDataList.filter(
         (data) => data.data !== "" && data.mimeType !== ""
       );
 
-      // If there are no valid images and the prompt is empty, do not proceed
+      // If there are no valid images and the message is empty, do not proceed
       if (validMediaData.length === 0) return;
+      if (message.trim() === "") return;
 
       const mediaBase64 = validMediaData.map((data) =>
         data.data.replace(/^data:(image|video)\/\w+;base64,/, "")
       );
       const mediaTypes = validMediaData.map((data) => data.mimeType);
 
-      // console.log(mediaBase64.length, mediaTypes);
-
       const body = JSON.stringify({
-        message: prompt,
+        message,
         media: mediaBase64,
         media_types: mediaTypes,
         general_settings: generalSettings,
@@ -82,32 +76,60 @@ export const VisionContainer = () => {
             accumulator += text;
             setResult(accumulator);
           }
-          setLoading(false);
         }
       } catch (error) {
         if (error instanceof Error) {
           setResult(`Error: ${error.message}`);
-          setLoading(false);
         }
+      } finally {
+        setLoading(false);
       }
-      // };
     },
-    [generalSettings, safetySettings, mediaDataList, prompt]
+    [mediaDataList, prompt, generalSettings, safetySettings]
+  );
+
+  const handleRefresh = useCallback(() => {
+    if (!userQuestion) return;
+    setLoading(true);
+    setResult("");
+    makeApiCall(userQuestion);
+  }, [userQuestion, makeApiCall]);
+
+  const handleSubmitForm = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+
+      if (!isFormSubmittable()) return;
+      setLoading(true);
+      setUserQuestion(prompt);
+      setResult("");
+      setPrompt("");
+
+      await makeApiCall(prompt);
+    },
+    [isFormSubmittable, makeApiCall, prompt]
   );
 
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
         {userQuestion && (
-          <div className="bg-primary/20 p-4">{userQuestion}</div>
+          <div className="bg-primary/20 p-4 flex space-x-4">
+            <Button
+              type={`button`}
+              variant={`icon`}
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RefreshCcw className={`w-4 h-4`} />
+            </Button>
+
+            <div>{userQuestion}</div>
+          </div>
         )}
         <div className="flex-1 overflow-y-auto p-4">
           <MarkdownViewer text={result} />
-          {loading && (
-            <div className="mt-6 bg-primary/10 dark:bg-primary/10 px-4 py-4 rounded-lg m-4 justify-start w-16">
-              <TypingBubble />
-            </div>
-          )}
+          {loading && <TypingBubble />}
           {mediaDataList.every(
             (media) => media === null || media?.data === ""
           ) && (
