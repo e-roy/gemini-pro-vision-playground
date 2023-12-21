@@ -1,11 +1,12 @@
 "use client";
 // componnets/VisionContainer.tsx
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { MarkdownViewer } from "@/components/MarkdownViewer";
 import { Card } from "@/components/ui/card";
 
 import { useControlContext } from "@/providers/ControlContext";
 import { CommonForm } from "./CommonForm";
+import { TypingBubble } from "./TypingBubble";
 
 export const VisionContainer = () => {
   const { generalSettings, safetySettings, mediaDataList } =
@@ -15,7 +16,6 @@ export const VisionContainer = () => {
   const [prompt, setPrompt] = useState<string>("");
   const [userQuestion, setUserQuestion] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const isFormSubmittable = useCallback(() => {
     return (
@@ -35,7 +35,6 @@ export const VisionContainer = () => {
       setUserQuestion(prompt);
       setResult("");
       setPrompt("");
-      resetTextareaHeight();
 
       // Filter out any invalid image data
       const validMediaData = mediaDataList.filter(
@@ -96,12 +95,6 @@ export const VisionContainer = () => {
     [generalSettings, safetySettings, mediaDataList, prompt]
   );
 
-  const resetTextareaHeight = useCallback(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "2.5rem";
-    }
-  }, []);
-
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
@@ -110,6 +103,11 @@ export const VisionContainer = () => {
         )}
         <div className="flex-1 overflow-y-auto p-4">
           <MarkdownViewer text={result} />
+          {loading && (
+            <div className="mt-6 bg-primary/10 dark:bg-primary/10 px-4 py-4 rounded-lg m-4 justify-start w-16">
+              <TypingBubble />
+            </div>
+          )}
           {mediaDataList.every(
             (media) => media === null || media?.data === ""
           ) && (

@@ -12,6 +12,7 @@ import { Card } from "./ui/card";
 import { MarkdownViewer } from "./MarkdownViewer";
 import { useControlContext } from "@/providers/ControlContext";
 import { CommonForm } from "./CommonForm";
+import { TypingBubble } from "./TypingBubble";
 
 export const ChatContainer = () => {
   const { generalSettings, safetySettings } = useControlContext();
@@ -71,6 +72,11 @@ export const ChatContainer = () => {
             </div>
           ))}
           <div ref={messagesEndRef} />
+          {loading && (
+            <div className="mt-6 bg-primary/10 dark:bg-primary/10 px-4 py-4 rounded-lg m-4 justify-start w-16">
+              <TypingBubble />
+            </div>
+          )}
         </div>
         <CommonForm
           value={input}
