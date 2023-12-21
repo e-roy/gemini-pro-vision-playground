@@ -72,11 +72,7 @@ export const ChatContainer = () => {
             </div>
           ))}
           <div ref={messagesEndRef} />
-          {loading && (
-            <div className="mt-6 bg-primary/10 dark:bg-primary/10 px-4 py-4 rounded-lg m-4 justify-start w-16">
-              <TypingBubble />
-            </div>
-          )}
+          {loading && <TypingBubble />}
         </div>
         <CommonForm
           value={input}

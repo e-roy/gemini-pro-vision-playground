@@ -39,6 +39,7 @@ export async function POST(req: Request) {
   // console.log(temperature, maxLength, topP, topK);
   // console.log(media, media_types);
   // console.log(safety_settings);
+  // console.log("message =================>", message);
 
   const userMessage = message;
 
