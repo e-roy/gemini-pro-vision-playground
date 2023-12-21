@@ -158,7 +158,7 @@ export const VisionContainer = () => {
         <div className="flex-1 overflow-y-auto p-4">
           <MarkdownViewer text={result} />
           {mediaDataList.every(
-            (media) => media === null || media.data === ""
+            (media) => media === null || media?.data === ""
           ) && (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="text-2xl text-primary/80 font-medium">
