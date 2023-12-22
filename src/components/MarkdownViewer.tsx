@@ -1,7 +1,6 @@
 "use client";
 // components/MarkdownViewer.tsx
 import React, { useMemo, useState } from "react";
-// import CodeBlock from "./CodeBlock";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";

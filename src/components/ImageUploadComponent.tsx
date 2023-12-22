@@ -22,7 +22,7 @@ const ImageUploadComponent: React.FC<ImageUploadComponentProps> = memo(
 
     const removeMedia = useCallback(() => {
       setMedia(null);
-      onRemove(); // Use the onRemove prop instead
+      onRemove();
     }, [onRemove]);
 
     const resizeImage = useCallback(

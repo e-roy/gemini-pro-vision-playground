@@ -1,6 +1,5 @@
-// componets/control/SafetySelector.tsx
 "use client";
-
+// componets/control/SafetySelector.tsx
 import * as React from "react";
 
 import {
