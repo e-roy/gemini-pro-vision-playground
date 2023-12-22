@@ -85,7 +85,7 @@ export const VisionContainer = () => {
         setLoading(false);
       }
     },
-    [mediaDataList, prompt, generalSettings, safetySettings]
+    [mediaDataList, generalSettings, safetySettings]
   );
 
   const handleRefresh = useCallback(() => {
