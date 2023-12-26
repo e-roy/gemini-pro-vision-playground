@@ -4,7 +4,7 @@ import React, { useState, useCallback } from "react";
 import { useControlContext } from "@/providers/ControlContext";
 import { Card } from "@/components/ui/card";
 
-import { MarkdownViewer } from "./MarkdownViewer";
+import { MarkdownViewer } from "./markdown-viewer/MarkdownViewer";
 import { CommonForm } from "./CommonForm";
 import { TypingBubble } from "./TypingBubble";
 

@@ -1,14 +1,10 @@
 # Gemini Pro Vision Playground
 
-
 This project is a simple playground for using the Gemini Pro Vision and Gemini Pro AI models.
 
-
+I created this to help others building apps with the gemini-pro and gemin-pro-vision models. If you find it helpful, please give a ⭐
 
 https://github.com/e-roy/gemini-pro-vision-playground/assets/70700747/e0e80929-285c-441f-87f5-34d68593b787
-
-
-
 
 ## Getting Started
 
