@@ -1,5 +1,5 @@
 // api/gemini/route.ts
-import { Message } from "ai";
+import { GoogleGenerativeAIStream, Message, StreamingTextResponse } from "ai";
 
 import {
   GoogleGenerativeAI,
@@ -87,53 +87,30 @@ export async function POST(req: Request) {
   ];
 
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-pro",
-    safetySettings: mappedSafetySettings,
-    generationConfig: {
-      //   candidateCount: 0,
-      //   stopSequences: [],
-      maxOutputTokens: maxLength,
-      temperature,
-      topP,
-      topK,
-    },
-  });
 
-  const countTokens = await model.countTokens(reqContent);
-  console.log("count tokens ------", countTokens);
+  const tokens = await genAI
+    .getGenerativeModel({
+      model: "gemini-pro",
+    })
+    .countTokens(reqContent);
+  console.log("count tokens ------", tokens);
 
-  try {
-    const streamingResp = await model.generateContentStream(reqContent);
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of streamingResp.stream) {
-            if (chunk.candidates) {
-              const parts = chunk.candidates[0].content.parts;
-              const firstPart = parts[0];
-              if (typeof firstPart.text === "string") {
-                // Encode the string text as bytes
-                const textEncoder = new TextEncoder();
-                const encodedText = textEncoder.encode(firstPart.text);
-                controller.enqueue(encodedText);
-              }
-            }
-          }
-          controller.close();
-        } catch (error) {
-          console.error("Streaming error:", error);
-          controller.error(error);
-        }
+  const geminiStream = await genAI
+    .getGenerativeModel({
+      model: "gemini-pro",
+      safetySettings: mappedSafetySettings,
+      generationConfig: {
+        //   candidateCount: 0,
+        //   stopSequences: [],
+        maxOutputTokens: maxLength,
+        temperature,
+        topP,
+        topK,
       },
-    });
+    })
+    .generateContentStream(reqContent);
 
-    return new Response(stream, {
-      headers: { "Content-Type": "text/plain" },
-    });
-  } catch (error) {
-    console.error("API error:", error);
-    return new Response("Internal Server Error", { status: 500 });
-  }
+  const stream = GoogleGenerativeAIStream(geminiStream);
+
+  return new StreamingTextResponse(stream);
 }
