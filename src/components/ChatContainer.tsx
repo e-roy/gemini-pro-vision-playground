@@ -9,16 +9,13 @@ import React, {
 } from "react";
 import { Message, useChat } from "ai/react";
 import { Card } from "./ui/card";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { MarkdownViewer } from "./MarkdownViewer";
+
+import { MarkdownViewer } from "./markdown-viewer/MarkdownViewer";
 import { useControlContext } from "@/providers/ControlContext";
 import { CommonForm } from "./CommonForm";
 import { TypingBubble } from "./TypingBubble";
-import { MessageCircleX } from "lucide-react";
+import { MessageCircleX, User, Bot } from "lucide-react";
+import { Button } from "./ui/button";
 
 export const ChatContainer = () => {
   const { generalSettings, safetySettings } = useControlContext();
@@ -63,39 +60,41 @@ export const ChatContainer = () => {
   return (
     <div className="flex flex-col h-[95vh]">
       <Card className="flex flex-col flex-1 overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
-          {messages.length > 0 && (
-            <div className={`flex justify-end p-4`}>
-              <HoverCard openDelay={200}>
-                <HoverCardTrigger asChild onClick={handleClearChat}>
-                  <div className={`text-primary/60 hover:text-primary/90`}>
-                    <MessageCircleX />
-                  </div>
-                </HoverCardTrigger>
-                <HoverCardContent
-                  align="start"
-                  className="w-[260px] text-sm"
-                  side="right"
-                >
-                  Clear chat history
-                </HoverCardContent>
-              </HoverCard>
-            </div>
-          )}
-          {messages.map((message: Message) => (
-            <div
-              key={message.id}
-              className={`${
-                message.role === "user" ? "justify-end" : "justify-start"
-              } flex m-4`}
+        {messages.length > 0 && (
+          <div className={`flex p-4`}>
+            <Button
+              variant={`secondary`}
+              type={`button`}
+              size={`sm`}
+              onClick={handleClearChat}
             >
+              <MessageCircleX className={`mr-2`} /> Clear chat history
+            </Button>
+          </div>
+        )}
+        <div className="flex-1 overflow-y-auto">
+          {messages.map((message: Message) => (
+            <div key={message.id} className={`flex`}>
               <div
                 className={`${
                   message.role === "user"
-                    ? "bg-primary/20 dark:bg-primary/20"
+                    ? ""
                     : "bg-primary/10 dark:bg-primary/10"
-                } px-4 py-2 rounded-lg`}
+                } px-4 py-8 w-full`}
               >
+                <div className={`my-4`}>
+                  {message.role === "user" ? (
+                    <div className={`flex space-x-4 font-medium`}>
+                      <User />
+                      <div>You</div>
+                    </div>
+                  ) : (
+                    <div className={`flex space-x-4 font-medium`}>
+                      <Bot />
+                      <div>Gemini Pro</div>
+                    </div>
+                  )}
+                </div>
                 <MarkdownViewer text={message.content} />
               </div>
             </div>
