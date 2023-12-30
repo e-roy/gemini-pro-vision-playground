@@ -50,22 +50,34 @@ interface CodeBlockProps {
   children?: string | React.ReactNode;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ ...props }) => {
-  const { children, className, ...rest } = props;
-  const match = /language-(\w+)/.exec(className as string) || [];
+export const CodeBlock: React.FC<CodeBlockProps> = ({
+  children,
+  className,
+  ...rest
+}) => {
+  const match = /language-(\w+)/.exec(className || "");
+  const language = match?.[1];
 
-  return match ? (
-    <SyntaxHighlighter
-      {...rest}
-      PreTag="div"
-      language={match[1]}
-      style={a11yDark}
-    >
-      {String(children).replace(/\n$/, "")}
-    </SyntaxHighlighter>
-  ) : (
-    <code {...rest} className={className}>
-      {children}
-    </code>
-  );
+  if (language) {
+    return (
+      <SyntaxHighlighter
+        {...rest}
+        PreTag="div"
+        language={language}
+        style={a11yDark}
+      >
+        {String(children).replace(/\n$/, "")}
+      </SyntaxHighlighter>
+    );
+  }
+
+  if (typeof children === "string") {
+    return (
+      <code {...rest} className={className}>
+        {children}
+      </code>
+    );
+  }
+
+  return null;
 };

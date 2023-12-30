@@ -1,7 +1,7 @@
 "use client";
 // components/ImageUploadComponent.tsx
 import React, { useState, useCallback, memo } from "react";
-import { Card } from "./ui/card";
+import { Card } from "../ui/card";
 import { useDropzone } from "react-dropzone";
 import { Import, Upload, XCircle } from "lucide-react";
 
