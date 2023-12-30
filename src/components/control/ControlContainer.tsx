@@ -12,12 +12,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import ImageUploadComponent from "../ImageUploadComponent";
 import { useControlContext } from "@/providers/ControlContext";
 
 import { ChevronDown } from "lucide-react";
 import { SettingsSelector } from "./SettingsSelector";
 import { ExtraButtons } from "./ExtraButtons";
+import ImageUploadComponent from "./ImageUploadComponent";
 
 import { settings_data } from "./settings_data";
 

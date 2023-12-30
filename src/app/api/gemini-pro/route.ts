@@ -6,6 +6,7 @@ import {
   HarmCategory,
   HarmBlockThreshold,
   GenerateContentRequest,
+  Content,
 } from "@google/generative-ai";
 
 import { GeneralSettings } from "@/types";
@@ -43,22 +44,28 @@ export async function POST(req: Request) {
   // console.log("safety_settings", safety_settings);
   // console.log("messages =================>", messages);
 
+  // consecutive user messages need to be merged into the same content, 2 consecutive Content objects will error with the Gemini api
   const reqContent: GenerateContentRequest = {
-    contents: messages.map((m: Message) => {
+    contents: messages.reduce((acc: Content[], m: Message) => {
       if (m.role === "user") {
-        return {
-          role: "user",
-          parts: [{ text: m.content }],
-        };
-      }
-      if (m.role === "assistant") {
-        return {
+        const lastContent = acc[acc.length - 1];
+        if (lastContent && lastContent.role === "user") {
+          lastContent.parts.push({ text: m.content });
+        } else {
+          acc.push({
+            role: "user",
+            parts: [{ text: m.content }],
+          });
+        }
+      } else if (m.role === "assistant") {
+        acc.push({
           role: "model",
           parts: [{ text: m.content }],
-        };
+        });
       }
-      return undefined;
-    }),
+
+      return acc;
+    }, []),
   };
 
   const incomingSafetySettings = safety_settings || defaultSafetySettings;
