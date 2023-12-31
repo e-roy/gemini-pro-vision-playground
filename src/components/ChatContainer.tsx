@@ -1,6 +1,6 @@
 "use client";
 // components/ChatContainer.tsx
-import React, { useRef, useEffect, FormEvent, useCallback } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import { Message, useChat } from "ai/react";
 import { Card } from "./ui/card";
 
@@ -33,26 +33,9 @@ export const ChatContainer = () => {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, []);
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
-  const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    handleSubmit(event);
-  };
-
-  const handleClearChat = useCallback(() => {
-    setMessages([]);
-  }, [setMessages]);
-
-  const handleRefreshMessage = useCallback(() => {
-    reload();
-  }, [reload]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const messagesRef = useRef<Message[]>(messages);
 
@@ -79,7 +62,7 @@ export const ChatContainer = () => {
               variant={`secondary`}
               type={`button`}
               size={`sm`}
-              onClick={handleClearChat}
+              onClick={() => setMessages([])}
             >
               <MessageCircleX className={`mr-2`} /> Clear chat history
             </Button>
@@ -92,7 +75,7 @@ export const ChatContainer = () => {
               message={message}
               isLastMessage={messages.length === index + 1}
               isLoading={isLoading}
-              onRefresh={handleRefreshMessage}
+              onRefresh={reload}
               onRemove={() => handleRemoveMessage(message.id)}
             />
           ))}
@@ -105,7 +88,7 @@ export const ChatContainer = () => {
           placeholder="Chat with Gemini Pro"
           loading={isLoading}
           onInputChange={handleInputChange}
-          onFormSubmit={handleFormSubmit}
+          onFormSubmit={handleSubmit}
           isSubmittable={input.trim() !== ""}
         />
       </Card>

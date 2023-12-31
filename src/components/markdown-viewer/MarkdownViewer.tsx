@@ -1,15 +1,13 @@
 "use client";
 // components/MarkdownViewer.tsx
-import React, { useMemo } from "react";
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 
 import { UlComponent, OlComponent, LiComponent } from "./list";
-
 import { PreComponent, CodeBlock } from "./code";
-
 import {
   TableComponent,
   TheadComponent,
@@ -37,56 +35,40 @@ const Anchor: React.FC<AnchorProps> = ({ href, children }) => {
   );
 };
 
-const MemoizedAnchor = React.memo(Anchor);
-
-const MemoizedUlComponent = React.memo(UlComponent);
-const MemoizedOlComponent = React.memo(OlComponent);
-const MemoizedLiComponent = React.memo(LiComponent);
-
-const MemoizedPreComponent = React.memo(PreComponent);
-const MemoizedCodeBlock = React.memo(CodeBlock);
-
-const MemoizedTableComponent = React.memo(TableComponent);
-const MemoizedTheadComponent = React.memo(TheadComponent);
-const MemoizedTbodyComponent = React.memo(TbodyComponent);
-const MemoizedTrComponent = React.memo(TrComponent);
-const MemoizedThComponent = React.memo(ThComponent);
-const MemoizedTdComponent = React.memo(TdComponent);
-
 interface IMarkdownViewerProps {
   text: string;
 }
 
-export const MarkdownViewer: React.FC<IMarkdownViewerProps> = ({ text }) => {
-  const components = useMemo(
-    () => ({
-      a: MemoizedAnchor,
+export const MarkdownViewer: React.FC<IMarkdownViewerProps> = React.memo(
+  function MarkdownViewer({ text }) {
+    const components = {
+      a: Anchor,
 
-      ul: MemoizedUlComponent,
-      ol: MemoizedOlComponent,
-      li: MemoizedLiComponent,
+      ul: UlComponent,
+      ol: OlComponent,
+      li: LiComponent,
 
-      pre: MemoizedPreComponent,
-      code: MemoizedCodeBlock,
+      pre: PreComponent,
+      code: CodeBlock,
 
-      table: MemoizedTableComponent,
-      thead: MemoizedTheadComponent,
-      tbody: MemoizedTbodyComponent,
-      tr: MemoizedTrComponent,
-      th: MemoizedThComponent,
-      td: MemoizedTdComponent,
-    }),
-    []
-  );
+      table: TableComponent,
+      thead: TheadComponent,
+      tbody: TbodyComponent,
+      tr: TrComponent,
+      th: ThComponent,
+      td: TdComponent,
+    };
 
-  return (
-    <ReactMarkdown
-      // @ts-ignore
-      components={components}
-      remarkPlugins={[remarkGfm]}
-      rehypePlugins={[rehypeRaw, rehypeSanitize]}
-    >
-      {text}
-    </ReactMarkdown>
-  );
-};
+    return (
+      <ReactMarkdown
+        // @ts-ignore
+        components={components}
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw, rehypeSanitize]}
+      >
+        {text}
+      </ReactMarkdown>
+    );
+  },
+  (prevProps, nextProps) => prevProps.text === nextProps.text
+);
