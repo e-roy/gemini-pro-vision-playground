@@ -12,18 +12,40 @@ import {
   defaultSafetySettings,
 } from "@/lib/safety-settings-mapper";
 
+import { sanitizeContent } from "@/lib/sanitize-content";
+
+import { proRequestSchema } from "@/lib/validate/pro-request-schema";
+
 import { GeneralSettings } from "@/types";
 
 export const runtime = "edge";
 
 export async function POST(req: Request) {
-  const { messages, general_settings, safety_settings } = await req.json();
+  const parseResult = proRequestSchema.safeParse(await req.json());
+
+  if (!parseResult.success) {
+    // If validation fails, return a 400 Bad Request response
+    return new Response(JSON.stringify({ error: "Invalid request data" }), {
+      status: 400,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  }
+
+  const { messages, general_settings, safety_settings } = parseResult.data;
   const { temperature, maxLength, topP, topK } =
     general_settings as GeneralSettings;
 
+  for (const message of messages) {
+    message.content = sanitizeContent(message.content);
+  }
+
+  const typedMessages: Message[] = messages as unknown as Message[];
+
   // consecutive user messages need to be merged into the same content, 2 consecutive Content objects with user role will error with the Gemini api
   const reqContent: GenerateContentRequest = {
-    contents: messages.reduce((acc: Content[], m: Message) => {
+    contents: typedMessages.reduce((acc: Content[], m: Message) => {
       if (m.role === "user") {
         const lastContent = acc[acc.length - 1];
         if (lastContent && lastContent.role === "user") {

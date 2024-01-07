@@ -23,7 +23,7 @@ export const PreComponent: React.FC<IPreProps> = ({ children }) => {
         console.error("Failed to copy!", err);
       }
     }
-  }, [children.props.children]);
+  }, [children?.props?.children]);
 
   return (
     <pre className="bg-[#2B2B2B] rounded-md p-2 text-neutral-50 mb-4">
