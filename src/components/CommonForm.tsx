@@ -70,8 +70,7 @@ export const CommonForm: React.FC<CommonFormProps> = ({
   const handleTextAreaInput = useCallback(
     (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       onInputChange(event);
-      const target = event.currentTarget;
-      setTextareaHeight(`${target.scrollHeight}px`);
+      adjustTextareaHeight(event.currentTarget);
     },
     [onInputChange]
   );
@@ -102,7 +101,7 @@ export const CommonForm: React.FC<CommonFormProps> = ({
         onKeyDown={handleKeyPress}
         style={{ height: textareaHeight }}
         rows={1}
-        className="flex-1 p-2 resize-none overflow-hidden min-h-8 rounded"
+        className="flex-1 p-2 resize-none min-h-8 rounded max-h-[50vh]"
         placeholder={placeholder}
       />
       <div className="mt-auto">
