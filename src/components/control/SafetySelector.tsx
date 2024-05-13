@@ -10,10 +10,18 @@ import {
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
+const safetyLevels = ["none", "few", "some", "most"] as const;
+
+type SafetyLevel = (typeof safetyLevels)[number];
+
+const getSafetyLevel = (value: number): SafetyLevel => {
+  return safetyLevels[value] || "none";
+};
+
 interface SafetySelectorProps {
-  label: string;
-  value: number;
-  onValueChange: (newValue: number[]) => void;
+  readonly label: string;
+  readonly value: number;
+  readonly onValueChange: (newValue: number[]) => void;
 }
 
 export function SafetySelector({
@@ -21,6 +29,8 @@ export function SafetySelector({
   value,
   onValueChange,
 }: SafetySelectorProps) {
+  const safetyLevel = getSafetyLevel(value);
+
   return (
     <div className="grid gap-2 pt-2">
       <HoverCard openDelay={200}>
@@ -29,13 +39,7 @@ export function SafetySelector({
             <div className="flex items-center justify-between">
               <Label htmlFor={label}>{label}</Label>
               <span className="w-12 rounded-md border border-transparent px-2 py-0.5 text-right text-sm text-muted-foreground hover:border-border">
-                {value === 0
-                  ? "none"
-                  : value === 1
-                  ? "few"
-                  : value === 2
-                  ? "some"
-                  : "most"}
+                {safetyLevel}
               </span>
             </div>
             <Slider

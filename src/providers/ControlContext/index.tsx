@@ -1,6 +1,6 @@
 "use client";
 // providers/ControlContext.tsx
-import { createContext, useState, useContext, ReactNode } from "react";
+import { createContext, useState, useContext, ReactNode, useMemo } from "react";
 
 import { MediaData, SafetySettings, GeneralSettings } from "@/types";
 
@@ -84,20 +84,23 @@ export const ControlProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const contextValue = useMemo(
+    () => ({
+      selectedModel,
+      mediaDataList,
+      handleMediaUpload,
+      removeMediaData,
+      generalSettings,
+      handleGeneralSettingsChange,
+      safetySettings,
+      handleModelChange,
+      handleSafetyChange,
+    }),
+    [selectedModel, mediaDataList, generalSettings, safetySettings]
+  );
+
   return (
-    <ControlContext.Provider
-      value={{
-        selectedModel,
-        mediaDataList,
-        handleMediaUpload,
-        removeMediaData,
-        generalSettings,
-        handleGeneralSettingsChange,
-        safetySettings,
-        handleModelChange,
-        handleSafetyChange,
-      }}
-    >
+    <ControlContext.Provider value={contextValue}>
       {children}
     </ControlContext.Provider>
   );
