@@ -10,12 +10,12 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
 interface SettingsSelectorProps {
-  label: string;
-  hoverText: string;
-  step: number;
-  max: number;
-  value: number;
-  onValueChange: (newValue: number[]) => void;
+  readonly label: string;
+  readonly hoverText: string;
+  readonly step: number;
+  readonly max: number;
+  readonly value: number;
+  readonly onValueChange: (newValue: number[]) => void;
 }
 
 export function SettingsSelector({

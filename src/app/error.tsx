@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 
-export default function Error({ error, reset }: any) {
+export default function ErrorPage({ error, reset }: any) {
   React.useEffect(() => {
     console.log("logging error:", error);
   }, [error]);
